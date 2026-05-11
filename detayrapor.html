@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>TruffleEco - Premium Rapor TRF-105</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1a1a2e;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            padding: 30px;
+        }
+
+        /* Sayfa düzeni - PDF için A4 */
+        .page {
+            max-width: 1100px;
+            margin: 0 auto 30px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            page-break-after: always;
+        }
+
+        .page-content {
+            padding: 50px;
+        }
+
+        /* Renkler */
+        .gold {
+            color: #FFD700;
+        }
+        .orange {
+            color: #FF8C00;
+        }
+        .red {
+            color: #8B0000;
+        }
+        .dark-red {
+            color: #5a0000;
+        }
+
+        /* Tablolar */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #1a1a2e;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Skor çubuğu */
+        .score-bar {
+            width: 100%;
+            background: #f0f0f0;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .score-fill {
+            height: 30px;
+            background: linear-gradient(90deg, #8B0000, #FF4500, #FFD700);
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            line-height: 30px;
+            font-weight: bold;
+        }
+
+        /* Hotspot etiketi */
+        .hotspot {
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            color: #1a1a2e;
+        }
+
+        /* Gizli etiketi */
+        .confidential {
+            background-color: #1a1a2e;
+            color: #FFD700;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        /* Logo */
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h1 {
+            font-size: 42px;
+            letter-spacing: 8px;
+            color: #1a1a2e;
+        }
+        .logo p {
+            font-size: 14px;
+            color: #666;
+            letter-spacing: 3px;
+        }
+
+        /* Başlık */
+        h2 {
+            color: #1a1a2e;
+            border-left: 5px solid #FFD700;
+            padding-left: 20px;
+            margin: 25px 0 20px 0;
+        }
+
+        /* Grid düzeni */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+            }
+            .confidential {
+                background-color: #1a1a2e;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .score-fill {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .hotspot {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SAYFA 1: KAPAK -->
+    <div class="page">
+        <div class="page-content">
+            <div class="logo">
+                <h1>TRUFFLEECO</h1>
+                <p>WHERE NATURE MEETS TECH</p>
+            </div>
+
+            <div style="text-align: center; margin: 60px 0;">
+                <div style="font-size: 14px; letter-spacing: 5px; color: #999;">PREMIUM RAPOR</div>
+                <div style="font-size: 48px; font-weight: bold; margin: 20px 0;">TRF-105</div>
+                <div style="font-size: 20px; color: #555;">Eskişehir / Sivrihisar</div>
+                <div style="font-size: 16px; color: #777; margin: 10px 0;">100 km² | 10×10 km Hexagon</div>
+            </div>
+
+            <div style="text-align: center; margin: 40px 0;">
+                <div class="score-bar" style="width: 60%; margin: 0 auto;">
+                    <div class="score-fill" style="width: 74%;">%74 YÜKSEK POTANSİYEL</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 50px 0 0 0;">
+                <div style="font-size: 24px;">🍄 Tuber aestivum</div>
+                <div style="font-size: 14px; color: #999; margin-top: 10px;">Öncelikli Hedef Tür</div>
+            </div>
+
+            <div class="footer">
+                <div>Müşteri Özel - TRUFON Pro</div>
+                <div>15 Mayıs 2025</div>
+                <div class="confidential" style="margin-top: 20px;">🔒 GİZLİLİK SINIFLANDIRMASI: MÜŞTERİ ÖZEL</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAYFA 2: ISI HARİTASI -->
+    <div class="page">
+        <div class="page-content">
+            <div class="logo" style="margin-bottom: 20px;">
+                <h1 style="font-size: 24px;">TRUFFLEECO</h1>
+                <p>WHERE NATURE MEETS TECH</p>
+            </div>
+
+            <h2>ISI HARİTASI</h2>
+            <div style="font-size: 14px; color: #666; margin-bottom: 20px;">TRF-105 / Eskişehir / Sivrihisar</div>
+
+            <div style="background: #f0f0f0; padding: 40px; text-align: center; border-radius: 15px; margin: 20px 0;">
+                <div style="width: 100%; height: 300px; background: linear-gradient(135deg, #FFD700 0%, #FF8C00 30%, #8B0000 100%); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                    ISI HARİTASI GÖRÜNÜMÜ
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="info-card">
+                    <div>🟡 Altın Sarısı</div>
+                    <div style="font-size: 12px;">Elite (80+ puan)</div>
+                </div>
+                <div class="info-card">
+                    <div>🟠 Turuncu</div>
+                    <div style="font-size: 12px;">Yüksek (60-79 puan)</div>
+                </div>
+                <div class="info-card">
+                    <div style="color: #8B0000;">🔴 Kırmızı</div>
+                    <div style="font-size: 12px;">Orta/Düşük (&lt;60 puan)</div>
+                </div>
+                <div class="info-card">
+                    <div>📍 Koordinatlar</div>
+                    <div style="font-size: 12px;">1 km ızgaralı | Ölçek 1:50.000</div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="confidential">🔒 TRUFON Pro Müşterisine Özeldir - İzinsiz Kopyalanamaz</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAYFA 3: HOTSPOT HD-01 -->
+    <div class="page">
+        <div class="page-content">
+            <div class="logo" style="margin-bottom: 20px;">
+                <h1 style="font-size: 24px;">TRUFFLEECO</h1>
+                <p>WHERE NATURE MEETS TECH</p>
+            </div>
+
+            <h2>⭐ HOTSPOT HD-01</h2>
+            <div style="font-size: 14px; color: #666; margin-bottom: 20px;">Elite Alan | Skor: 92/100</div>
+
+            <div class="hotspot">
+                <div class="grid-2">
+                    <div>
+                        <div style="font-weight: bold;">Koordinat:</div>
+                        <div>40.12345 K</div>
+                        <div>29.56789 D</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold;">Rakım & Eğim:</div>
+                        <div>850 m | 12°</div>
+                        <div>Bakı: Kuzey</div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>📊 ARAZİ DETAYI</h2>
+            <table>
+                <tr><th>Parametre</th><th>Değer</th><th>Uygunluk</th></tr>
+                <tr><td>Toprak pH</td><td>7.5 (Hafif Alkali)</td><td style="color: green;">✅ Uygun</td></tr>
+                <tr><td>Toprak Nemi</td><td>%32</td><td style="color: green;">✅ Uygun</td></tr>
+                <tr><td>Hakim Ağaç</td><td>Meşe (Quercus robur)</td><td style="color: green;">✅ Uygun</td></tr>
+                <tr><td>Drenaj</td><td>İyi Drene</td><td style="color: green;">✅ Uygun</td></tr>
+                <tr><td>Su Kaynağı</td><td>1.2 km (Kalıcı)</td><td style="color: green;">✅ Uygun</td></tr>
+            </table>
+
+            <div style="background: #1a1a2e; color: #FFD700; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                📌 ÖNERİ: Öncelikli kazı alanı. Mayıs-Ağustos döneminde ziyaret edin.
+            </div>
+
+            <div class="footer">
+                <div class="confidential">🔒 TRUFON Pro Müşterisine Özeldir - İzinsiz Kopyalanamaz</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAYFA 4: ARAZİ DETAY RAPORU -->
+    <div class="page">
+        <div class="page-content">
+            <div class="logo" style="margin-bottom: 20px;">
+                <h1 style="font-size: 24px;">TRUFFLEECO</h1>
+                <p>WHERE NATURE MEETS TECH</p>
+            </div>
+
+            <h2>📋 ARAZİ DETAY RAPORU</h2>
+
+            <div class="grid-2">
+                <div class="info-card">
+                    <h3>🌱 TOPRAK ANALİZİ</h3>
+                    <p>pH: 7.5 (Hafif Alkali)</p>
+                    <p>Nem: %32 (Nemli)</p>
+                    <p>Kireç: Yüksek</p>
+                    <p>Drenaj: İyi</p>
+                </div>
+                <div class="info-card">
+                    <h3>🌳 VEJETASYON</h3>
+                    <p>Meşe (Quercus robur): %65</p>
+                    <p>Gürgen: %20</p>
+                    <p>Fındık: %10</p>
+                    <p>Orman Kapalılık: %75</p>
+                </div>
+                <div class="info-card">
+                    <h3>💧 SU KAYNAKLARI</h3>
+                    <p>Kalıcı Su: 1.2 km</p>
+                    <p>Mevsimsel Dere: Var</p>
+                    <p>Su Kalitesi: Tatlı, Kireçli</p>
+                </div>
+                <div class="info-card">
+                    <h3>☀️ İKLİM</h3>
+                    <p>Yağış: 850 mm/yıl</p>
+                    <p>Sıcaklık: 21°C</p>
+                    <p>Kış Don Riski: Düşük</p>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="confidential">🔒 TRUFON Pro Müşterisine Özeldir - İzinsiz Kopyalanamaz</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAYFA 5: TRÜF TÜRLERİ ANALİZİ -->
+    <div class="page">
+        <div class="page-content">
+            <div class="logo" style="margin-bottom: 20px;">
+                <h1 style="font-size: 24px;">TRUFFLEECO</h1>
+                <p>WHERE NATURE MEETS TECH</p>
+            </div>
+
+            <h2>🍄 TRÜF TÜRÜ ANALİZİ</h2>
+
+            <table>
+                <tr><th>Tür</th><th>Potansiyel</th><th>Mevsim</th><th>Öncelik</th></tr>
+                <tr><td>🍄 Tuber aestivum (Yaz Trüfü)</td><td>%74</td><td>Mayıs - Ağustos</td><td>⭐⭐⭐ Yüksek</td></tr>
+                <tr><td>🍄 Tuber borchii (Bianchetto)</td><td>%55</td><td>Ocak - Nisan</td><td>⭐⭐ Orta</td></tr>
+                <tr><td>🍄 Tuber magnatum (Beyaz Trüf)</td><td>%28</td><td>Ekim - Aralık</td><td>⭐ Düşük</td></tr>
+            </table>
+
+            <div style="background: #1a1a2e; color: #FFD700; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                📌 Hedef: Mayıs-Ağustos dönemi, Tuber aestivum odaklı saha planlaması yapın.
+            </div>
+
+            <div class="footer">
+                <div class="confidential">🔒 TRUFON Pro Müşterisine Özeldir - İzinsiz Kopyalanamaz</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAYFA 6: SAHA PLANI -->
+    <div class="page">
+        <div class="page-content">
+            <div class="logo" style="margin-bottom: 20px;">
+                <h1 style="font-size: 24px;">TRUFFLEECO</h1>
+                <p>WHERE NATURE MEETS TECH</p>
+            </div>
+
+            <h2>🗺️ 7 GÜNLÜK SAHA PLANI</h2>
+
+            <table>
+                <tr><th>Gün</th><th>Bölge</th><th>Süre</th><th>Öncelik</th></tr>
+                <tr><td>1</td><td>HD-01 (Skor:92)</td><td>6 saat</td><td>⭐⭐⭐</td></tr>
+                <tr><td>2</td><td>HD-02 (Skor:88)</td><td>6 saat</td><td>⭐⭐⭐</td></tr>
+                <tr><td>3</td><td>HD-03 (Skor:85)</td><td>6 saat</td><td>⭐⭐⭐</td></tr>
+                <tr><td>4</td><td>Sarı Bölge (70-84)</td><td>4 saat</td><td>⭐⭐</td></tr>
+                <tr><td>5</td><td>Sarı Bölge (70-84)</td><td>4 saat</td><td>⭐⭐</td></tr>
+                <tr><td>6</td><td>Turuncu Bölge (60-69)</td><td>3 saat</td><td>⭐</td></tr>
+                <tr><td>7</td><td>Raporlama / Veri Analizi</td><td>-</td><td>-</td></tr>
+            </table>
+
+            <div style="background: #1a1a2e; color: #FFD700; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                📍 Rota Haritası ve GPS koordinatları ayrıca teslim edilecektir.
+            </div>
+
+            <div class="footer">
+                <div class="confidential">🔒 TRUFON Pro Müşterisine Özeldir - İzinsiz Kopyalanamaz</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAYFA 7: VOC RAPORU -->
+    <div class="page">
+        <div class="page-content">
+            <div class="logo" style="margin-bottom: 20px;">
+                <h1 style="font-size: 24px;">TRUFFLEECO</h1>
+                <p>WHERE NATURE MEETS TECH</p>
+            </div>
+
+            <h2>🔬 VOC ANALİZ RAPORU</h2>
+            <div style="font-size: 14px; color: #666; margin-bottom: 20px;">TRUFON Pro Sensör Verisi | Ölçüm: 14.05.2025</div>
+
+            <table>
+                <tr><th>Hotspot</th><th>VOC (ppm)</th><th>Durum</th></tr>
+                <tr><td>HD-01</td><td>0.8</td><td style="color: green;">✅ Trüf izi tespit edildi</td></tr>
+                <tr><td>HD-02</td><td>0.6</td><td style="color: orange;">⚠️ Zayıf izi</td></tr>
+                <tr><td>HD-03</td><td>0.9</td><td style="color: green;">✅✅ Güçlü izi</td></tr>
+                <tr><td>Sarı Bölge</td><td>0.3</td><td style="color: gray;">❓ Belirsiz</td></tr>
+            </table>
+
+            <div style="background: #1a1a2e; color: #FFD700; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                📌 Öncelik Sırası: HD-03 > HD-01 > HD-02
+            </div>
+
+            <div class="footer">
+                <div class="confidential">🔒 TRUFON Pro Müşterisine Özeldir - Bu rapor cihaza özeldir.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAYFA 8: TEKNİK DOKÜMAN -->
+    <div class="page">
+        <div class="page-content">
+            <div class="logo" style="margin-bottom: 20px;">
+                <h1 style="font-size: 24px;">TRUFFLEECO</h1>
+                <p>WHERE NATURE MEETS TECH</p>
+            </div>
+
+            <h2>⚙️ TEKNİK DOKÜMAN</h2>
+            <div class="confidential" style="margin-bottom: 20px;">🔒 GİZLİ - İMZA KARŞILIĞI TESLİM EDİLMİŞTİR</div>
+
+            <h3>Model Parametreleri</h3>
+            <div class="grid-2">
+                <div class="info-card">Su Yakınlığı: 35%</div>
+                <div class="info-card">İklim: 16%</div>
+                <div class="info-card">pH: 15%</div>
+                <div class="info-card">Nem: 12%</div>
+                <div class="info-card">Karst/Kireçtaşı: 12%</div>
+                <div class="info-card">Drenaj: 12%</div>
+                <div class="info-card">Eğim + Bakı: 12%</div>
+                <div class="info-card">Toplam 8 Parametre</div>
+            </div>
+
+            <h3>Veri Katmanları</h3>
+            <ul style="margin: 20px; line-height: 2;">
+                <li>Toprak Asitlik (Yüksek çözünürlük)</li>
+                <li>Toprak Nemi (250m profilli)</li>
+                <li>Akarsu Ağı + Sulak Alanlar</li>
+                <li>Orman Sınıflandırması (AI tabanlı)</li>
+                <li>İklim Verileri (2015-2024)</li>
+                <li>Yapay Zeka Destekli Analiz</li>
+            </ul>
+
+            <div style="margin: 30px 0;">
+                <div style="font-weight: bold;">Model Doğruluğu: 9.3/10</div>
+                <div class="score-bar" style="width: 200px;">
+                    <div class="score-fill" style="width: 93%; background: linear-gradient(90deg, #FFD700, #FF8C00);">9.3</div>
+                </div>
+            </div>
+
+            <div style="border: 2px solid #1a1a2e; padding: 20px; margin: 20px 0;">
+                <div style="font-weight: bold;">Müşteri İmza:</div>
+                <div style="height: 40px; border-bottom: 1px solid #000; margin: 10px 0;"></div>
+                <div>Tarih: ___/___/2025</div>
+            </div>
+
+            <div class="footer">
+                <div class="confidential">🔒 Bu doküman ticari sırdır. İzinsiz kopyalanması yasaktır.</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
