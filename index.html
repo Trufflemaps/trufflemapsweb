@@ -350,6 +350,272 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- PARTNERLER ve YORUMLAR BAŞLIYOR -->
+<section class="section" id="partners">
+    <div class="container">
+        <div class="badge" style="display:table; margin:0 auto 16px auto;">Güvenilen Markalar</div>
+        <h2 class="hero-title" style="text-align:center; font-size:38px;">İş Birliği Yaptığımız <span class="text-gradient">Kurumlar</span></h2>
+        
+        <!-- 5 Partner Logosu -->
+        <div class="partners-grid">
+            <div class="partner-card">
+                <div class="partner-logo">🌿</div>
+                <div class="partner-name">Tarım Bakanlığı</div>
+                <div class="partner-desc">Stratejik Ortak</div>
+            </div>
+            <div class="partner-card">
+                <div class="partner-logo">🏫</div>
+                <div class="partner-name">İstanbul Üniversitesi</div>
+                <div class="partner-desc">Akademik Danışman</div>
+            </div>
+            <div class="partner-card">
+                <div class="partner-logo">🤖</div>
+                <div class="partner-name">AgriTech AI</div>
+                <div class="partner-desc">Teknoloji Ortağı</div>
+            </div>
+            <div class="partner-card">
+                <div class="partner-logo">🗺️</div>
+                <div class="partner-name">MapLayer Inc.</div>
+                <div class="partner-desc">Harita Çözümleri</div>
+            </div>
+            <div class="partner-card">
+                <div class="partner-logo">🌍</div>
+                <div class="partner-name">EuroTruffle</div>
+                <div class="partner-desc">Avrupa Distribütör</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="testimonials" style="background: linear-gradient(180deg, #07070a 0%, #0a0a12 100%);">
+    <div class="container">
+        <div class="badge" style="display:table; margin:0 auto 16px auto;">Müşteri Deneyimleri</div>
+        <h2 class="hero-title" style="text-align:center; font-size:38px;">Kullanıcılarımız <span class="text-gradient">Ne Diyor?</span></h2>
+        
+        <div class="testimonials-slider">
+            <div class="testimonials-container" id="testimonialsContainer">
+                <!-- Yorumlar JS ile doldurulacak -->
+            </div>
+            
+            <!-- Slider Kontrolleri -->
+            <div class="slider-controls">
+                <button class="slider-btn" id="prevTestimonial" onclick="changeTestimonial(-1)">◀</button>
+                <div class="slider-dots" id="testimonialDots"></div>
+                <button class="slider-btn" id="nextTestimonial" onclick="changeTestimonial(1)">▶</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- STILLER -->
+<style>
+    /* Partnerler için stiller */
+    .partners-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 30px;
+        margin-top: 48px;
+    }
+    
+    .partner-card {
+        background: linear-gradient(135deg, #121218, #0d0d14);
+        border: 1px solid rgba(139,92,246,0.2);
+        border-radius: 24px;
+        padding: 30px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .partner-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(139,92,246,0.5);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    
+    .partner-logo {
+        font-size: 48px;
+        margin-bottom: 16px;
+        background: rgba(139,92,246,0.1);
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 60px;
+        margin: 0 auto 16px auto;
+        transition: all 0.3s;
+    }
+    
+    .partner-card:hover .partner-logo {
+        background: rgba(139,92,246,0.2);
+        transform: scale(1.05);
+    }
+    
+    .partner-name {
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: 6px;
+        color: #fff;
+    }
+    
+    .partner-desc {
+        font-size: 12px;
+        color: #a78bfa;
+    }
+    
+    @media (max-width: 768px) {
+        .partners-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .partner-card {
+            padding: 20px 15px;
+        }
+        .partner-logo {
+            width: 60px;
+            height: 60px;
+            font-size: 32px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .partners-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    /* Yorumlar için stiller */
+    .testimonials-slider {
+        position: relative;
+        max-width: 900px;
+        margin: 48px auto 0;
+        overflow: hidden;
+    }
+    
+    .testimonials-container {
+        display: flex;
+        transition: transform 0.5s ease;
+    }
+    
+    .testimonial-card {
+        flex: 0 0 100%;
+        background: linear-gradient(135deg, #121218, #0a0a12);
+        border: 1px solid rgba(139,92,246,0.25);
+        border-radius: 32px;
+        padding: 40px 48px;
+        margin: 0 10px;
+        box-sizing: border-box;
+        box-shadow: 0 25px 40px rgba(0,0,0,0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .testimonial-card {
+            padding: 28px 24px;
+            margin: 0 5px;
+        }
+    }
+    
+    .testimonial-stars {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        justify-content: center;
+    }
+    
+    .testimonial-star {
+        font-size: 28px;
+        color: #ffc107;
+        text-shadow: 0 0 5px rgba(255,193,7,0.5);
+    }
+    
+    .testimonial-text {
+        font-size: 18px;
+        line-height: 1.6;
+        color: #d1d1dc;
+        text-align: center;
+        margin-bottom: 28px;
+        font-style: italic;
+        quotes: "“" "”" "‘" "’";
+    }
+    
+    .testimonial-text::before {
+        content: "“";
+        font-size: 40px;
+        color: #8b5cf6;
+        opacity: 0.5;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+    
+    .testimonial-text::after {
+        content: "”";
+        font-size: 40px;
+        color: #8b5cf6;
+        opacity: 0.5;
+        margin-left: 8px;
+        vertical-align: bottom;
+    }
+    
+    .testimonial-author {
+        text-align: center;
+        font-weight: 700;
+        font-size: 18px;
+        color: #fff;
+        margin-bottom: 4px;
+    }
+    
+    .testimonial-title {
+        text-align: center;
+        font-size: 13px;
+        color: #a78bfa;
+    }
+    
+    .slider-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 24px;
+        margin-top: 32px;
+    }
+    
+    .slider-btn {
+        background: rgba(139,92,246,0.15);
+        border: 1px solid rgba(139,92,246,0.3);
+        color: #a78bfa;
+        font-size: 20px;
+        padding: 10px 18px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .slider-btn:hover {
+        background: rgba(139,92,246,0.3);
+        transform: scale(1.05);
+    }
+    
+    .slider-dots {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(139,92,246,0.3);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .dot.active {
+        background: #8b5cf6;
+        width: 24px;
+        border-radius: 10px;
+    }
+</style>
+
 <footer class="footer">
     <div class="container">
         <div class="footer-grid">
@@ -766,6 +1032,90 @@ document.addEventListener('DOMContentLoaded', () => {
     let platform = document.getElementById('platform');
     if (platform) observer.observe(platform);
 });
+
+// ============ MÜŞTERİ YORUMLARI (OTOMATİK GEÇİŞLİ) ============
+const testimonialsData = [
+    { id: 1, name: "Ahmet Yılmaz", title: "Tarım Danışmanı, İzmir", text: "TruffleMaps sayesinde 1 yıldır trüf avcılığı yapıyorum. Platformdaki hexagon haritalar gerçekten hayat kurtarıyor. Daha önce yıllarca boşuna alan tarıyordum, şimdi veriye dayalı hareket ediyorum.", rating: 5 },
+    { id: 2, name: "Ebru Kaya", title: "Ziraat Mühendisi, Bursa", text: "Human Kit ile saha analizi yapmak çok kolay. Sensörlerin hassasiyeti ve AI desteği sayesinde trüf yoğunluğunu önceden tahmin edebiliyoruz. Kesinlikle öneriyorum!", rating: 5 },
+    { id: 3, name: "Murat Demir", title: "Trüf Üreticisi, Kırklareli", text: "K9 Kit'i köpeğimle kullanıyorum. Sistem son derece başarılı. Geçen sezon hasadım %70 arttı. Rakiplerim hala rastgele kazarken ben nerede kazacağımı biliyorum.", rating: 5 },
+    { id: 4, name: "Zeynep Şahin", title: "Gıda Mühendisi, Çanakkale", text: "Premium paket ile tüm arazimi analiz ettim. API entegrasyonu sayesinde kendi sistemime veri aktarabiliyorum. TruffleMaps ekibi çok profesyonel, her zaman destek oluyorlar.", rating: 5 }
+];
+
+let currentTestimonialIndex = 0;
+let autoInterval;
+
+function renderTestimonials() {
+    const container = document.getElementById('testimonialsContainer');
+    if (!container) return;
+    container.innerHTML = testimonialsData.map(t => `
+        <div class="testimonial-card">
+            <div class="testimonial-stars">
+                ${'<span class="testimonial-star">★</span>'.repeat(t.rating)}
+                ${'<span class="testimonial-star" style="opacity:0.3;">★</span>'.repeat(5-t.rating)}
+            </div>
+            <div class="testimonial-text">${t.text}</div>
+            <div class="testimonial-author">${t.name}</div>
+            <div class="testimonial-title">${t.title}</div>
+        </div>
+    `).join('');
+    setupDots();
+    updateSlider();
+}
+
+function updateSlider() {
+    const container = document.getElementById('testimonialsContainer');
+    if (!container || !container.children[0]) return;
+    const slideWidth = container.children[0].offsetWidth;
+    container.style.transform = `translateX(-${currentTestimonialIndex * slideWidth}px)`;
+    document.querySelectorAll('.dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentTestimonialIndex);
+    });
+}
+
+function changeTestimonial(dir) {
+    currentTestimonialIndex = (currentTestimonialIndex + dir + testimonialsData.length) % testimonialsData.length;
+    updateSlider();
+    resetAutoSlide();
+}
+
+function goToTestimonial(index) {
+    currentTestimonialIndex = index;
+    updateSlider();
+    resetAutoSlide();
+}
+
+function setupDots() {
+    const dots = document.getElementById('testimonialDots');
+    if (!dots) return;
+    dots.innerHTML = testimonialsData.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}" onclick="goToTestimonial(${i})"></div>`).join('');
+}
+
+function startAutoSlide() {
+    autoInterval = setInterval(() => changeTestimonial(1), 5000);
+}
+
+function stopAutoSlide() {
+    if (autoInterval) clearInterval(autoInterval);
+}
+
+function resetAutoSlide() {
+    stopAutoSlide();
+    startAutoSlide();
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    renderTestimonials();
+    startAutoSlide();
+    
+    const slider = document.querySelector('.testimonials-slider');
+    if (slider) {
+        slider.addEventListener('mouseenter', stopAutoSlide);
+        slider.addEventListener('mouseleave', startAutoSlide);
+    }
+});
+
+window.addEventListener('resize', () => updateSlider());
 </script>
 </body>
 </html>
