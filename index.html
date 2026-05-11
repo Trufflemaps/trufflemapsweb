@@ -1,1 +1,771 @@
-"test" 
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruffleMaps | Trüf Arama ve Haritalama Platformu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/maplibre-gl@4.1.3/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@4.1.3/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #07070a; color: #fff; overflow-x: hidden; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+        .section { padding: 100px 0; }
+        .text-gradient { background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 28px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; border: none; }
+        .btn-primary { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(139,92,246,0.5); }
+        .btn-gold { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; font-weight: 700; }
+        .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(139,92,246,0.3); }
+        .btn-outline { background: transparent; color: #fff; border: 1px solid rgba(139,92,246,0.3); }
+        .badge { display: inline-block; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); margin-bottom: 16px; }
+        
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(7,7,10,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 12px 0; }
+        .navbar .container { display: flex; align-items: center; justify-content: space-between; }
+        .navbar-logo { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; cursor: pointer; }
+        .navbar-links { display: flex; gap: 32px; list-style: none; }
+        .navbar-links a { color: #a1a1aa; text-decoration: none; font-size: 14px; cursor: pointer; transition: color 0.3s; }
+        .navbar-links a:hover { color: #a78bfa; }
+        .navbar-cta { display: flex; align-items: center; gap: 16px; }
+        .cart-icon { position: relative; cursor: pointer; font-size: 22px; }
+        .cart-badge { position: absolute; top: -8px; right: -12px; background: #e63946; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
+        .dashboard-btn { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); padding: 8px 16px; border-radius: 30px; font-size: 13px; cursor: pointer; color: #a78bfa; }
+        .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #a78bfa); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #111; cursor: pointer; }
+        .mobile-toggle { display: none; background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        @media (max-width: 1024px) { .navbar-links { display: none; } .mobile-toggle { display: block; } }
+        
+        .mobile-menu { position: fixed; top: 0; right: -100%; width: 280px; height: 100vh; background: #121218; z-index: 1100; padding: 80px 24px 40px; transition: 0.3s; border-left: 1px solid rgba(139,92,246,0.3); }
+        .mobile-menu.open { right: 0; }
+        .mobile-menu a { display: block; color: #fff; padding: 14px 0; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; }
+        .mobile-menu .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+        .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1050; display: none; }
+        .mobile-overlay.open { display: block; }
+        
+        .hero { min-height: 100vh; display: flex; align-items: center; padding-top: 80px; background: radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.15), #07070a); }
+        .hero .container { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .hero-title { font-family: 'Playfair Display', serif; font-size: 56px; font-weight: 700; line-height: 1.15; background: linear-gradient(135deg, #fff, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-subtitle { color: #a1a1aa; margin-bottom: 32px; font-size: 18px; }
+        .hero-img { width: 100%; max-width: 500px; border-radius: 28px; border: 1px solid rgba(139,92,246,0.3); }
+        @media (max-width: 768px) { .hero .container { grid-template-columns: 1fr; text-align: center; } .hero-title { font-size: 36px; } }
+        
+        .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .product-card { background: #121218; border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 28px 24px; transition: all 0.3s; }
+        .product-card:hover { transform: translateY(-4px); border-color: rgba(139,92,246,0.3); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .product-card-image { width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; background: rgba(139,92,246,0.1); }
+        .product-card .features { list-style: none; margin: 16px 0; color: #a1a1aa; font-size: 13px; }
+        .product-card .features li { padding: 4px 0; }
+        .product-message { margin-top: 16px; padding: 10px; background: rgba(139,92,246,0.1); border-radius: 12px; font-size: 13px; color: #a78bfa; text-align: center; border-left: 3px solid #8b5cf6; }
+        @media (max-width: 768px) { .product-grid { grid-template-columns: 1fr; } }
+        
+        .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+        .tech-card { background: #121218; border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 28px 24px; transition: all 0.3s; }
+        .tech-card:hover { transform: translateY(-4px); border-color: rgba(139,92,246,0.3); }
+        .tech-card-icon { width: 55px; height: 55px; border-radius: 50%; background: rgba(139,92,246,0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 26px; color: #a78bfa; }
+        .tech-card h4 { font-size: 16px; margin-bottom: 8px; text-align: center; }
+        .tech-card p { font-size: 13px; color: #a1a1aa; text-align: center; }
+        .tech-features { list-style: none; margin: 16px 0; color: #a1a1aa; font-size: 13px; }
+        .tech-features li { padding: 4px 0; }
+        .tech-message { margin-top: 16px; padding: 10px; background: rgba(139,92,246,0.1); border-radius: 12px; font-size: 13px; color: #a78bfa; text-align: center; border-left: 3px solid #8b5cf6; }
+        .tech-message-highlight { margin-top: 16px; padding: 10px; background: rgba(139,92,246,0.15); border-radius: 12px; font-size: 13px; color: #c4a962; text-align: center; border: 1px solid rgba(139,92,246,0.3); }
+        .tech-card-highlight { border: 2px solid rgba(139,92,246,0.4); }
+        .ai-badge { font-size: 10px; background: rgba(139,92,246,0.3); padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
+        @media (max-width: 768px) { .tech-grid { grid-template-columns: 1fr; } }
+        
+        .howitworks-image { width: 100%; border-radius: 28px; border: 1px solid rgba(139,92,246,0.3); margin-top: 48px; }
+        
+        #platformMapWrapper { height: 500px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(139,92,246,0.3); position: relative; margin-top: 48px; }
+        #truffleMap { width: 100%; height: 100%; }
+        .map-legend { position: absolute; bottom: 16px; left: 16px; background: rgba(0,0,0,0.7); padding: 8px 14px; border-radius: 10px; display: flex; gap: 16px; z-index: 5; font-size: 11px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 6px; }
+        
+        .package-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 48px; }
+        .package-card { background: #121218; border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 24px 20px; text-align: center; transition: all 0.3s; }
+        .package-card:hover { transform: translateY(-4px); border-color: rgba(139,92,246,0.3); }
+        .package-price { font-size: 28px; font-weight: 800; color: #a78bfa; margin: 12px 0; }
+        .package-features { list-style: none; margin: 16px 0; color: #a1a1aa; font-size: 12px; text-align: left; }
+        .package-features li { padding: 4px 0; }
+        .package-message { margin-top: 12px; padding-top: 10px; font-size: 11px; color: #a78bfa; border-top: 1px solid rgba(255,255,255,0.06); }
+        .trufon-highlight { border: 2px solid rgba(139,92,246,0.5); background: linear-gradient(135deg, #121218, rgba(139,92,246,0.05)); }
+        .trufon-badge { display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 4px 12px; border-radius: 50px; font-size: 11px; margin-bottom: 12px; }
+        .trufon-bonus { background: rgba(16,185,129,0.1); border-radius: 8px; padding: 10px; font-size: 12px; color: #10b981; margin: 12px 0; }
+        .trufon-modes { display: flex; justify-content: center; gap: 12px; margin: 12px 0; font-size: 11px; }
+        .trufon-modes span { background: rgba(139,92,246,0.1); padding: 4px 12px; border-radius: 20px; }
+        .trufon-badge-small { display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 2px 10px; border-radius: 50px; font-size: 10px; font-weight: 600; margin-bottom: 4px; }
+        @media (max-width: 1024px) { .package-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .package-grid { grid-template-columns: 1fr; } }
+        
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
+        .modal.open { display: flex; }
+        .modal-content { background: #121218; border: 1px solid rgba(139,92,246,0.3); border-radius: 28px; max-width: 500px; width: 90%; padding: 32px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: #a1a1aa; font-size: 24px; cursor: pointer; }
+        .modal h2 { color: #a78bfa; margin-bottom: 24px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 13px; margin-bottom: 6px; color: #a1a1aa; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; font-family: inherit; font-size: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        
+        .dashboard-header { padding: 140px 0 50px; text-align: center; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; margin-top: 30px; }
+        .polygon-card { background: #121218; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 20px; }
+        .polygon-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .polygon-code { font-size: 18px; font-weight: 700; color: #a78bfa; }
+        .polygon-status { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(16,185,129,0.2); color: #10b981; }
+        .polygon-detail-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .delete-btn { background: rgba(255,70,70,0.15); border: 1px solid rgba(255,70,70,0.3); color: #ff6b6b; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-top: 12px; width: 100%; }
+        .stars { display: flex; gap: 5px; margin: 10px 0; }
+        .star { font-size: 22px; cursor: pointer; color: #444; }
+        .star.active { color: #8b5cf6; }
+        .evaluation-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .evaluation-history { margin-top: 12px; max-height: 200px; overflow-y: auto; }
+        
+        .maplibregl-popup-content { background: linear-gradient(135deg, #121218, #0a0a10) !important; border: 1px solid rgba(139,92,246,0.4) !important; border-radius: 16px !important; padding: 16px 20px !important; color: #ffffff !important; font-family: 'Inter', sans-serif !important; min-width: 250px !important; box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important; }
+        .maplibregl-popup-content strong { color: #a78bfa !important; font-size: 16px !important; font-weight: 700 !important; display: block !important; margin-bottom: 4px !important; }
+        .maplibregl-popup-close-button { color: #a78bfa !important; font-size: 18px !important; }
+        .maplibregl-popup-tip { border-top-color: #121218 !important; }
+        
+        .footer { background: #030305; border-top: 1px solid rgba(255,255,255,0.06); padding: 50px 0 30px; margin-top: 60px; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+        .footer-logo { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; cursor: pointer; }
+        .footer-desc { font-size: 13px; color: #6a6a7a; }
+        .footer h4 { font-size: 14px; margin-bottom: 16px; }
+        .footer ul { list-style: none; }
+        .footer ul li { margin-bottom: 8px; }
+        .footer ul li a { color: #6a6a7a; text-decoration: none; font-size: 13px; cursor: pointer; }
+        .footer ul li a:hover { color: #a78bfa; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 20px; margin-top: 30px; text-align: center; font-size: 12px; color: #6a6a7a; }
+        @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; } }
+        
+        .hidden { display: none !important; }
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; }
+        .toast { background: #121218; border-left: 4px solid #8b5cf6; padding: 12px 20px; border-radius: 10px; margin-bottom: 8px; animation: slideIn 0.3s; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="container">
+        <div class="navbar-logo" onclick="scrollToSection('hero')">🍄 TruffleMaps</div>
+        <ul class="navbar-links">
+            <li><a onclick="scrollToSection('hero')">Ana Sayfa</a></li>
+            <li><a onclick="scrollToSection('urunler')">Ürünler</a></li>
+            <li><a onclick="scrollToSection('nasil-calisir')">Nasıl Çalışır?</a></li>
+            <li><a onclick="scrollToSection('teknoloji')">Teknoloji</a></li>
+            <li><a onclick="scrollToSection('platform')">Platform</a></li>
+            <li><a onclick="scrollToSection('paketler')">Paketler</a></li>
+            <li><a onclick="scrollToSection('yatirimci')">Yatırımcı</a></li>
+        </ul>
+        <div class="navbar-cta">
+            <div class="cart-icon" onclick="showCart()">🛒<span class="cart-badge" id="cartBadge">0</span></div>
+            <button class="dashboard-btn" onclick="showDashboard()">📊 Dashboard</button>
+            <div class="user-avatar" id="userAvatar" onclick="showLogin()">👤</div>
+            <button class="mobile-toggle" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileMenu()"></div>
+<div class="mobile-menu" id="mobileMenu">
+    <button class="close-btn" onclick="toggleMobileMenu()">✕</button>
+    <a onclick="scrollToSection('hero'); toggleMobileMenu()">Ana Sayfa</a>
+    <a onclick="scrollToSection('urunler'); toggleMobileMenu()">Ürünler</a>
+    <a onclick="scrollToSection('nasil-calisir'); toggleMobileMenu()">Nasıl Çalışır?</a>
+    <a onclick="scrollToSection('teknoloji'); toggleMobileMenu()">Teknoloji</a>
+    <a onclick="scrollToSection('platform'); toggleMobileMenu()">Platform</a>
+    <a onclick="scrollToSection('paketler'); toggleMobileMenu()">Paketler</a>
+    <a onclick="scrollToSection('yatirimci'); toggleMobileMenu()">Yatırımcı</a>
+    <a onclick="showDashboard(); toggleMobileMenu()">Dashboard</a>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+        <h2>🔐 Giriş Yap</h2>
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group"><input type="email" id="loginEmail" placeholder="E-posta" required value="demo@trufflemaps.com"></div>
+            <div class="form-group"><input type="password" id="loginPassword" placeholder="Şifre" required value="123456"></div>
+            <button type="submit" class="btn btn-gold" style="width:100%;">Giriş Yap</button>
+            <p style="margin-top:16px; font-size:12px; color:#6a6a7a; text-align:center;">Demo: demo@trufflemaps.com / 123456</p>
+        </form>
+    </div>
+</div>
+
+<!-- CART MODAL -->
+<div class="modal" id="cartModal">
+    <div class="modal-content" style="max-width:600px;">
+        <button class="modal-close" onclick="closeModal('cartModal')">✕</button>
+        <h2>🛒 Sepetim</h2>
+        <div id="cartItemsList" style="min-height:100px;"></div>
+        <div id="cartTotalPrice" style="margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1); text-align:right;"></div>
+        <button class="btn btn-gold" style="width:100%; margin-top:20px;" onclick="checkout()">💳 Satın Al</button>
+    </div>
+</div>
+
+<!-- YATIRIMCI MODAL -->
+<div class="modal" id="investorModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('investorModal')">✕</button>
+        <h2>📧 Yatırımcı Başvurusu</h2>
+        <form id="investorForm" action="https://formspree.io/f/xgorqwpz" method="POST" onsubmit="return submitInvestorForm(event)">
+            <input type="hidden" name="_subject" value="Yatırımcı Başvurusu - TruffleMaps">
+            <div class="form-group"><label>Ad Soyad *</label><input type="text" name="adsoyad" required placeholder="Adınız soyadınız"></div>
+            <div class="form-group"><label>E-posta *</label><input type="email" name="email" required placeholder="ornek@mail.com"></div>
+            <div class="form-group"><label>Telefon</label><input type="tel" name="telefon" placeholder="+90 5__ ___ __ __"></div>
+            <div class="form-group"><label>Şirket / Kurum</label><input type="text" name="sirket" placeholder="Şirket adı"></div>
+            <div class="form-group"><label>Yatırımcı Tipi *</label><select name="yatirimci_tipi" required><option value="">Seçiniz</option><option>Melek Yatırımcı</option><option>VC / Fon</option><option>Kurumsal Yatırımcı</option><option>Stratejik Ortak</option></select></div>
+            <div class="form-group"><label>Mesajınız</label><textarea name="mesaj" rows="3" placeholder="Yatırım ile ilgili notlarınız..."></textarea></div>
+            <button type="submit" class="btn btn-gold" style="width:100%;">Gönder</button>
+        </form>
+    </div>
+</div>
+
+<!-- ANA SAYFA İÇERİĞİ -->
+<div id="mainContent">
+    <section class="hero" id="hero">
+        <div class="container">
+            <div>
+                <div class="badge">Premium Agrotech</div>
+                <h1 class="hero-title">Trüf Aramayı <span class="text-gradient">Cihaz, Veri ve Harita ile</span> Keşfet</h1>
+                <p class="hero-subtitle">TruffleMaps ile potansiyel trüf alanlarını keşfedin, satın alın ve saha verilerinizi değerlendirin.</p>
+                <div><button class="btn btn-primary" onclick="scrollToSection('urunler')">Ürünleri İncele</button><button class="btn btn-gold" onclick="scrollToSection('paketler')" style="margin-left:12px;">Paketlerimiz</button><a href="detayrapor.html" target="_blank" class="btn" style="margin-left:12px;background:linear-gradient(135deg,#25D366,#1da851);color:white;text-decoration:none;">📄 Ücretsiz Trüf Raporu</a></div>
+				<div style="margin-top:16px;">
+    <a href="https://wa.me/905353622253?text=Merhaba%20TruffleMaps%2C%20arazi%20analizi%20istiyorum.%20" target="_blank" class="btn" style="background:linear-gradient(135deg,#25D366,#1da851);color:white;text-decoration:none;display:inline-flex;align-items:center;gap:8px;">📱 WhatsApp'tan Ücretsiz Analiz</a>
+</div>
+            </div>
+            <div><img src="images/hero-product-field.jpg" class="hero-img" onerror="this.src='https://placehold.co/500x500/121218/8b5cf6?text=TruffleMaps'"></div>
+        </div>
+    </section>
+
+    <!-- ÜRÜNLER -->
+    <section class="section" id="urunler">
+        <div class="container">
+            <div class="badge" style="display:table; margin:0 auto 16px auto;">Ürün Ailesi</div>
+            <h2 class="hero-title" style="text-align:center; font-size:38px;">TruffleMaps <span class="text-gradient">Ürün Ailesi</span></h2>
+            <div class="product-grid" style="margin-top:48px;">
+                <div class="product-card"><img src="images/human-kit.jpg" class="product-card-image" onerror="this.src='images/TRUFON-Humankit.png'"><h3>🔹 Human Kit</h3><p style="font-size:13px; color:#a78bfa; margin-bottom:8px;">Gelişmiş Versiyon</p><ul class="features"><li>✓ Gerçek zamanlı VOC analizi</li><li>✓ Trüf imza tespiti</li><li>✓ AI destekli saha skorlama</li><li>✓ GPS konum kaydı</li><li>✓ Mobil uygulama entegrasyonu</li></ul><div class="product-message">💡 "İnsanı sensörle güçlendiriyoruz"</div><button class="btn btn-primary" onclick="scrollToSection('paketler')">Teklif Al</button></div>
+                <div class="product-card"><img src="images/k9-kit.jpg" class="product-card-image" onerror="this.src='images/TRUFON-Dogekit.png'"><h3>🔹 K9 Kit</h3><p style="font-size:13px; color:#a78bfa; margin-bottom:8px;">Gelişmiş Versiyon</p><ul class="features"><li>✓ Köpek + sensör hibrit sistem</li><li>✓ GPS hareket takibi</li><li>✓ Tespit anı işaretleme</li><li>✓ Davranış analizi</li><li>✓ Canlı görev takibi</li></ul><div class="product-message">💡 "Köpekleri veriyle daha akıllı hale getiriyoruz"</div><button class="btn btn-primary" onclick="scrollToSection('paketler')">Teklif Al</button></div>
+                <div class="product-card"><img src="images/platform.jpg" class="product-card-image" onerror="this.src='images/TRUFON-Platform.png'"><h3>🔹 Platform</h3><p style="font-size:13px; color:#a78bfa; margin-bottom:8px;">Asıl altın değer burada</p><ul class="features"><li>✓ Hexagon potansiyel haritaları</li><li>✓ AI olgunluk tahmini</li><li>✓ Uydu + sensör füzyonu</li><li>✓ Hotspot keşif algoritması</li><li>✓ API entegrasyonu</li></ul><div class="product-message">💡 "Trüf'ü veri işine çeviriyoruz"</div><button class="btn btn-primary" onclick="scrollToSection('platform')">Platformu Gör</button></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="nasil-calisir">
+        <div class="container">
+            <div class="badge" style="display:table; margin:0 auto 16px auto;">Süreç</div>
+            <h2 class="hero-title" style="text-align:center; font-size:38px;">Nasıl <span class="text-gradient">Çalışır?</span></h2>
+            <p style="text-align:center; color:#a1a1aa; max-width:600px; margin:0 auto;">Trüf'ü bulmanın bilimsel ve teknolojik yolu</p>
+            <img src="images/nasil-calisir.png" class="howitworks-image" onerror="this.src='https://placehold.co/1000x400/121218/8b5cf6?text=1.Sensör→2.Veri→3.AI→4.Harita→5.Kazı'">
+        </div>
+    </section>
+
+    <!-- TEKNOLOJİ -->
+    <section class="section" id="teknoloji">
+        <div class="container">
+            <div class="badge" style="display:table; margin:0 auto 16px auto;">Teknoloji</div>
+            <h2 class="hero-title" style="text-align:center; font-size:38px;">Kokuyu <span class="text-gradient">Veriye Dönüştüren</span> Yaklaşım</h2>
+            <div class="tech-grid">
+                <div class="tech-card"><div class="tech-card-icon">🔬</div><h4>ÇOKLU SENSÖR</h4><ul class="tech-features"><li>✓ PID tabanlı VOC sensör teknolojisi</li><li>✓ Çoklu gaz sensör füzyonu</li><li>✓ Gerçek zamanlı saha veri toplama</li><li>✓ Yüksek hassasiyetli ppb seviyesinde ölçüm</li><li>✓ Adaptif sensör kalibrasyonu</li></ul><div class="tech-message">💡 Bu oyuncak değil, bilimsel cihaz</div></div>
+                <div class="tech-card"><div class="tech-card-icon">📊</div><h4>VOC PATTERN</h4><ul class="tech-features"><li>✓ Trüf'e özgü kimyasal imza analizi</li><li>✓ AI destekli pattern recognition</li><li>✓ Uçucu bileşik korelasyon modeli</li><li>✓ Yanlış pozitif filtreleme algoritması</li><li>✓ Sürekli öğrenen veri modeli</li></ul><div class="tech-message">💡 Biz kokuyu "anlayan" sistemiz</div></div>
+                <div class="tech-card"><div class="tech-card-icon">🌡</div><h4>KOMPANZASYON</h4><ul class="tech-features"><li>✓ Nem / sıcaklık etkisi düzeltme</li><li>✓ Toprak tipi adaptasyonu</li><li>✓ Çevresel gürültü filtreleme</li><li>✓ Dinamik kalibrasyon sistemi</li><li>✓ Saha koşullarına göre otomatik optimizasyon</li></ul><div class="tech-message">💡 Zor şartlarda bile doğru çalışır</div></div>
+                <div class="tech-card"><div class="tech-card-icon">📍</div><h4>GPS KAYIT</h4><ul class="tech-features"><li>✓ Hassas konum işaretleme</li><li>✓ Tespit noktası kaydı</li><li>✓ Saha izi (tracking) oluşturma</li><li>✓ Hotspot haritalama altyapısı</li><li>✓ Offline kayıt + senkronizasyon</li></ul><div class="tech-message">💡 Her noktayı haritada işaretler</div></div>
+                <div class="tech-card tech-card-highlight"><div class="tech-card-icon">📈</div><h4>KARAR SKORU <span class="ai-badge">🤖 AI DESTEKLİ</span></h4><ul class="tech-features"><li>✓ AI destekli trüf olasılık skoru</li><li>✓ Çok parametreli analiz motoru</li><li>✓ Sensör + çevresel veri birleşimi</li><li>✓ Risk / verim tahmini</li><li>✓ Gerçek zamanlı karar desteği</li></ul><div class="tech-message-highlight">🎯 "Kazı Yap / Yapma" — Sistem size anlık karar desteği sağlar</div></div>
+                <div class="tech-card"><div class="tech-card-icon">🗺</div><h4>HARİTA RAPOR</h4><ul class="tech-features"><li>✓ Hexagon bazlı saha analizi</li><li>✓ Trüf potansiyel yoğunluk haritası</li><li>✓ Tarihsel veri katmanları</li><li>✓ PDF / export raporlama</li><li>✓ Yatırım & saha planlama çıktısı</li></ul><div class="tech-message">💡 Veriyi görselleştirir, karar aldırır</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="platform">
+        <div class="container">
+            <div class="badge" style="display:table; margin:0 auto 16px auto;">Keşfet</div>
+            <h2 class="hero-title" style="text-align:center; font-size:38px;">10x10 km2 Hexagon <span class="text-gradient">Trüf Potansiyel Haritası</span></h2>
+            <div id="platformMapWrapper"><div id="truffleMap"></div><div class="map-legend"><div><span class="legend-dot" style="background:#e6c44d;"></span> Erken</div><div><span class="legend-dot" style="background:#e67e22;"></span> Yaklaşan</div><div><span class="legend-dot" style="background:#e63946;"></span> Yüksek</div></div></div>
+        </div>
+    </section>
+
+    <!-- PAKETLER -->
+    <section class="section" id="paketler">
+        <div class="container">
+            <div class="badge" style="display:table; margin:0 auto 16px auto;">SaaS Paketleri</div>
+            <h2 class="hero-title" style="text-align:center; font-size:38px;">Size Özel <span class="text-gradient">Premium Çözümler</span></h2>
+            <div class="package-grid">
+                <div class="package-card trufon-highlight">
+                    <div class="trufon-badge-small">🟢 YENİ TEKNOLOJİ</div>
+                    <div class="trufon-badge-small">🟢 YENİ ÜRÜN</div>
+                    <h3>TRUFON PRO</h3>
+                    <div class="package-price">150.000 TL</div>
+                    <ul class="package-features"><li>✓ 1 kit (Human veya Doge)</li><li>✓ VOC analiz sistemi</li><li>✓ Mobil uygulama</li><li>✓ GPS ile özel haritalama</li></ul>
+                    <div class="trufon-bonus">🎁 10.000 TL değerindeki Başlangıç Paketi hediye</div>
+                    <div class="trufon-modes"><span>👤 Human Kit</span><span>🐕 Doge K9 Kit</span></div>
+                    <button class="btn btn-gold" onclick="addProductToCart('trufon')" style="width:100%;">Sepete Ekle</button>
+                </div>
+                <div class="package-card">
+                    <h3>🟢 Başlangıç</h3>
+                    <div class="package-price">10.000 TL</div>
+                    <ul class="package-features"><li>📐 1 adet 10x10 km2 analiz alanı</li><li>🗺️ Temel trüf potansiyel haritası</li><li>📊 Standart VOC analiz çıktısı</li><li>📝 Saha ön değerlendirme skoru</li><li>👤 Tek kullanıcı erişimi</li><li>🔍 Sınırlı veri çözünürlüğü</li></ul>
+                    <button class="btn btn-primary" onclick="addPackageToCart('basic')">Sepete Ekle</button>
+                    <div class="package-message">💡 "Denemek isteyenler için"</div>
+                </div>
+                <div class="package-card">
+                    <h3>🚀 Profesyonel</h3>
+                    <div class="package-price">40.000 TL</div>
+                    <ul class="package-features"><li>📐 5 adet 10x10 km2 analiz alanı</li><li>🗺️ Gelişmiş trüf yoğunluk haritası</li><li>🤖 AI destekli karar skoru</li><li>📈 Tarihsel & çevresel veri analizi</li><li>🔄 Çoklu saha karşılaştırma</li><li>👥 3 kullanıcı erişimi</li><li>⚡ Öncelikli veri işleme</li></ul>
+                    <button class="btn btn-primary" onclick="addPackageToCart('pro')">Sepete Ekle</button>
+                    <div class="package-message">💡 "Ciddi arazi tarayanlar için"</div>
+                </div>
+                <div class="package-card">
+                    <h3>👑 Premium</h3>
+                    <div class="package-price">150.000 TL</div>
+                    <ul class="package-features"><li>📐 20+ adet 10x10 km2 analiz alanı</li><li>🗺️ En yüksek çözünürlüklü veri erişimi</li><li>🤖 AI tahmin & hotspot keşfi</li><li>🎯 Özel saha analizi (custom model)</li><li>📡 Canlı veri akışı (sensor integration)</li><li>👥 Sınırsız kullanıcı</li><li>🔌 API erişimi</li><li>⭐ Öncelikli destek</li><li>📄 Özel raporlama & danışmanlık</li></ul>
+                    <button class="btn btn-primary" onclick="addPackageToCart('premium')">Sepete Ekle</button>
+                    <div class="package-message">💡 "Bu artık bir iş kurma paketi"</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="yatirimci">
+        <div class="container">
+            <div class="badge" style="display:table; margin:0 auto 16px auto;">Yatırımcı</div>
+            <h2 class="hero-title" style="text-align:center; font-size:38px;">TruffleMaps <span class="text-gradient">Ekosistemi</span></h2>
+            <div style="text-align:center; max-width:600px; margin:0 auto;"><p style="color:#a1a1aa; margin-bottom:30px;">Yatırım fırsatları ve stratejik ortaklık için bizimle iletişime geçin.</p><button class="btn btn-gold" onclick="openInvestorModal()">📧 Yatırımcı Başvurusu</button></div>
+        </div>
+    </section>
+</div>
+
+<!-- DASHBOARD PANEL -->
+<div id="dashboardPanel" style="display:none;">
+    <div class="dashboard-header"><h1>📊 Dashboard</h1><p>Satın aldığınız ürünler</p></div>
+    <div class="container">
+        <div style="text-align:right; margin-bottom:20px;"><button class="btn btn-outline" onclick="goHome()">🏠 Ana Sayfa</button> <button class="btn btn-outline" onclick="logout()" style="margin-left:8px;">🚪 Çıkış Yap</button></div>
+        <div id="dashboardContent" class="dashboard-grid"></div>
+        <div id="noPurchased" style="text-align:center; padding:60px; color:#6a6a7a; display:none;"><div style="font-size:48px;">🛒</div><p>Henüz satın aldığınız ürün yok.</p><button class="btn btn-primary" onclick="goHome(); scrollToSection('paketler');">Paketleri Keşfet</button></div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div><div class="footer-logo" onclick="scrollToSection('hero')">🍄 TruffleMaps</div><p class="footer-desc">Trüf arama, saha verisi ve harita tabanlı çözümler.</p></div>
+            <div><h4>Ürünler</h4><ul><li><a onclick="scrollToSection('urunler')">Human Kit</a></li><li><a onclick="scrollToSection('urunler')">K9 Kit</a></li><li><a onclick="scrollToSection('platform')">Platform</a></li></ul></div>
+            <div><h4>Kurumsal</h4><ul><li><a onclick="scrollToSection('yatirimci')">Yatırımcı</a></li><li><a onclick="showDashboard()">Dashboard</a></li></ul></div>
+            <div><h4>Yasal</h4><ul><li><a href="#">Gizlilik</a></li><li><a href="#">KVKK</a></li></ul></div>
+        </div>
+        <div class="footer-bottom">&copy; 2026 TruffleMaps</div>
+    </div>
+</footer>
+
+<script>
+// ============ HEXAGON VERİLERİ ============
+const HEX_CENTERS = [
+    { id: "HEX-001", code: "TRF-01", city: "Edirne", district: "Meriç", lat: 41.19, lng: 26.42, price: 45000, maturity: 72, trees: "Meşe, Gürgen", ph: 7.6, elevation: 85, water_dist: 320, area_km2: 100 },
+    { id: "HEX-002", code: "TRF-02", city: "Edirne", district: "Uzunköprü", lat: 41.27, lng: 26.69, price: 42000, maturity: 68, trees: "Meşe", ph: 7.5, elevation: 65, water_dist: 450, area_km2: 100 },
+    { id: "HEX-003", code: "TRF-03", city: "Kırklareli", district: "Demirköy", lat: 41.82, lng: 27.76, price: 58000, maturity: 85, trees: "Kayın, Meşe", ph: 7.8, elevation: 420, water_dist: 280, area_km2: 100 },
+    { id: "HEX-004", code: "TRF-04", city: "Kırklareli", district: "Vize", lat: 41.57, lng: 27.77, price: 52000, maturity: 78, trees: "Meşe", ph: 7.7, elevation: 380, water_dist: 350, area_km2: 100 },
+    { id: "HEX-005", code: "TRF-05", city: "Tekirdağ", district: "Saray", lat: 41.44, lng: 27.92, price: 48000, maturity: 78, trees: "Meşe", ph: 7.6, elevation: 320, water_dist: 340, area_km2: 100 },
+    { id: "HEX-010", code: "TRF-10", city: "Çanakkale", district: "Bayramiç", lat: 39.81, lng: 26.61, price: 58000, maturity: 85, trees: "Meşe, Kayın", ph: 7.8, elevation: 380, water_dist: 310, area_km2: 100 },
+    { id: "HEX-009", code: "TRF-09", city: "Çanakkale", district: "Yenice", lat: 39.93, lng: 27.25, price: 62000, maturity: 88, trees: "Kayın, Meşe", ph: 7.9, elevation: 450, water_dist: 220, area_km2: 100 },
+    { id: "HEX-014", code: "TRF-14", city: "Balıkesir", district: "Dursunbey", lat: 39.59, lng: 28.63, price: 65000, maturity: 92, trees: "Kayın, Meşe", ph: 8.0, elevation: 550, water_dist: 180, area_km2: 100 },
+    { id: "HEX-018", code: "TRF-18", city: "Bursa", district: "Orhaneli", lat: 39.90, lng: 28.99, price: 60000, maturity: 88, trees: "Kayın, Meşe", ph: 7.9, elevation: 520, water_dist: 200, area_km2: 100 },
+    { id: "HEX-017", code: "TRF-17", city: "Bursa", district: "İnegöl", lat: 40.08, lng: 29.51, price: 55000, maturity: 80, trees: "Meşe, Çam", ph: 7.8, elevation: 400, water_dist: 280, area_km2: 100 },
+    { id: "HEX-024", code: "TRF-24", city: "İstanbul", district: "Şile", lat: 41.17, lng: 29.76, price: 65000, maturity: 85, trees: "Meşe", ph: 7.8, elevation: 300, water_dist: 250, area_km2: 100 },
+    { id: "HEX-033", code: "TRF-33", city: "İzmir", district: "Ödemiş", lat: 38.23, lng: 27.97, price: 62000, maturity: 88, trees: "Meşe, Gürgen", ph: 7.9, elevation: 450, water_dist: 220, area_km2: 100 },
+    { id: "HEX-036", code: "TRF-36", city: "Manisa", district: "Demirci", lat: 39.05, lng: 28.66, price: 61000, maturity: 86, trees: "Meşe, Kayın", ph: 7.9, elevation: 520, water_dist: 200, area_km2: 100 },
+    { id: "HEX-042", code: "TRF-42", city: "Denizli", district: "Acıpayam", lat: 37.43, lng: 29.35, price: 68000, maturity: 92, trees: "Sedir, Ardıç", ph: 8.0, elevation: 720, water_dist: 180, area_km2: 100 },
+    { id: "HEX-041", code: "TRF-41", city: "Denizli", district: "Çivril", lat: 38.30, lng: 29.74, price: 60000, maturity: 86, trees: "Meşe, Çam", ph: 7.8, elevation: 480, water_dist: 220, area_km2: 100 },
+    { id: "HEX-049", code: "TRF-49", city: "Kütahya", district: "Simav", lat: 39.09, lng: 28.98, price: 63000, maturity: 90, trees: "Meşe, Gürgen", ph: 7.9, elevation: 580, water_dist: 200, area_km2: 100 },
+    { id: "HEX-046", code: "TRF-46", city: "Muğla", district: "Yatağan", lat: 37.34, lng: 28.14, price: 60000, maturity: 86, trees: "Meşe", ph: 7.8, elevation: 420, water_dist: 240, area_km2: 100 },
+    { id: "HEX-066", code: "TRF-66", city: "Antalya", district: "Elmalı", lat: 36.74, lng: 29.92, price: 65000, maturity: 88, trees: "Sedir, Ardıç", ph: 7.9, elevation: 1150, water_dist: 200, area_km2: 100 },
+    { id: "HEX-070", code: "TRF-70", city: "Mersin", district: "Mut", lat: 36.65, lng: 33.43, price: 60000, maturity: 85, trees: "Meşe, Ardıç", ph: 7.8, elevation: 920, water_dist: 230, area_km2: 100 },
+    { id: "HEX-077", code: "TRF-77", city: "Kahramanmaraş", district: "Andırın", lat: 37.58, lng: 36.35, price: 61000, maturity: 86, trees: "Sedir, Meşe", ph: 7.9, elevation: 950, water_dist: 210, area_km2: 100 },
+    { id: "HEX-081", code: "TRF-81", city: "Isparta", district: "Yenişarbademli", lat: 37.71, lng: 31.39, price: 60000, maturity: 85, trees: "Sedir, Ardıç", ph: 7.8, elevation: 1100, water_dist: 220, area_km2: 100 },
+    { id: "HEX-101", code: "TRF-101", city: "Ankara", district: "Kızılcahamam", lat: 40.47, lng: 32.65, price: 60000, maturity: 85, trees: "Meşe, Kayın", ph: 7.8, elevation: 980, water_dist: 220, area_km2: 100 },
+    { id: "HEX-106", code: "TRF-106", city: "Konya", district: "Beyşehir", lat: 37.68, lng: 31.73, price: 62000, maturity: 88, trees: "Sedir, Ardıç", ph: 7.9, elevation: 1150, water_dist: 200, area_km2: 100 },
+    { id: "HEX-108", code: "TRF-108", city: "Konya", district: "Hadim", lat: 36.99, lng: 32.46, price: 61000, maturity: 86, trees: "Sedir", ph: 7.8, elevation: 1200, water_dist: 210, area_km2: 100 },
+    { id: "HEX-131", code: "TRF-131", city: "Giresun", district: "Dereli", lat: 40.74, lng: 38.30, price: 58000, maturity: 82, trees: "Kayın, Meşe", ph: 7.8, elevation: 880, water_dist: 250, area_km2: 100 },
+    { id: "HEX-133", code: "TRF-133", city: "Rize", district: "Çamlıhemşin", lat: 40.96, lng: 41.00, price: 62000, maturity: 88, trees: "Kayın, Ladin", ph: 7.9, elevation: 1050, water_dist: 220, area_km2: 100 },
+    { id: "HEX-132", code: "TRF-132", city: "Trabzon", district: "Maçka", lat: 40.81, lng: 39.61, price: 60000, maturity: 85, trees: "Kayın", ph: 7.8, elevation: 920, water_dist: 230, area_km2: 100 },
+];
+
+// ============ DEĞİŞKENLER ============
+let currentUser = null;
+let cart = [];
+let purchased = [];
+let evaluations = {};
+let platformMap = null;
+let hexData = [];
+let currentRating = {};
+
+const OFFSET = 0.045;
+
+// ============ MAP FONKSİYONLARI ============
+function createHexagonPolygon(lat, lng) {
+    let coords = [];
+    for (let i = 0; i < 6; i++) {
+        let angle = (Math.PI / 3) * i - Math.PI / 6;
+        let newLat = lat + OFFSET * Math.cos(angle);
+        let newLng = lng + OFFSET * Math.sin(angle) / Math.cos(lat * Math.PI / 180);
+        coords.push([newLng, newLat]);
+    }
+    coords.push(coords[0]);
+    return coords;
+}
+
+function getColor(score) {
+    if (score > 70) return '#e63946';
+    if (score > 35) return '#e67e22';
+    return '#e6c44d';
+}
+
+function generateHexData() {
+    hexData = HEX_CENTERS.map(c => ({
+        ...c,
+        color: getColor(c.maturity),
+        priceFormatted: "₺" + c.price.toLocaleString('tr-TR'),
+        polygon: createHexagonPolygon(c.lat, c.lng)
+    }));
+}
+
+function initMap() {
+    let el = document.getElementById('truffleMap');
+    if (!el || platformMap) return;
+    platformMap = new maplibregl.Map({
+        container: 'truffleMap',
+        style: { version: 8, sources: { osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256 } }, layers: [{ id: 'osm', type: 'raster', source: 'osm' }] },
+        center: [32, 39],
+        zoom: 6.5
+    });
+    platformMap.on('load', () => { generateHexData(); renderHexagons(); });
+}
+
+function renderHexagons() {
+    if (!platformMap || !hexData.length) return;
+    ['hex-fills', 'hex-lines'].forEach(id => { if (platformMap.getLayer(id)) platformMap.removeLayer(id); });
+    if (platformMap.getSource('hexagons')) platformMap.removeSource('hexagons');
+    
+    let features = hexData.map(h => ({
+        type: 'Feature',
+        geometry: { type: 'Polygon', coordinates: [h.polygon] },
+        properties: { id: h.id, code: h.code, city: h.city, district: h.district, price: h.priceFormatted, maturity: h.maturity, color: h.color, trees: h.trees, ph: h.ph }
+    }));
+    
+    platformMap.addSource('hexagons', { type: 'geojson', data: { type: 'FeatureCollection', features } });
+    platformMap.addLayer({ id: 'hex-fills', type: 'fill', source: 'hexagons', paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.3 } });
+    platformMap.addLayer({ id: 'hex-lines', type: 'line', source: 'hexagons', paint: { 'line-color': ['get', 'color'], 'line-width': 1.5 } });
+    
+    platformMap.on('click', 'hex-fills', (e) => {
+        let p = e.features[0].properties;
+        new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`
+            <div>
+                <strong>${p.code}</strong>
+                <div style="font-size:13px;color:#a0a0b0;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:8px;">${p.city}/${p.district}</div>
+                <div style="font-size:12px;margin:6px 0;">Olgunluk: %${p.maturity}</div>
+                <div style="font-size:12px;margin:6px 0;">🌲 ${p.trees}</div>
+                <div style="font-size:12px;margin:6px 0;">🧪 pH: ${p.ph}</div>
+                <div style="font-size:18px;font-weight:800;color:#a78bfa;margin:12px 0 0 0;text-align:right;">${p.price}</div>
+                <button style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:white;border:none;padding:10px 16px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-top:14px;" onclick="addToCartHex('${p.id}')">🛒 Sepete Ekle</button>
+            </div>
+        `).addTo(platformMap);
+    });
+}
+
+// ============ SEPET FONKSİYONLARI ============
+function updateCartBadge() { document.getElementById('cartBadge').textContent = cart.length; }
+
+function addToCartHex(id) {
+    if (!currentUser) { showToast('Lütfen giriş yapın', 'error'); document.getElementById('loginModal').classList.add('open'); return; }
+    let item = hexData.find(h => h.id === id) || HEX_CENTERS.find(h => h.id === id);
+    if (!item) { console.error('Hexagon bulunamadı:', id); return; }
+    
+    cart.push({
+        id: item.id, name: item.code, price: item.price, type: 'hex',
+        code: item.code, city: item.city, district: item.district,
+        maturity: item.maturity, trees: item.trees, ph: item.ph,
+        elevation: item.elevation, water_dist: item.water_dist,
+        area_km2: item.area_km2 || 100, purchaseDate: new Date().toISOString()
+    });
+    
+    saveCart(); updateCartBadge();
+    showToast(`${item.code} sepete eklendi (${item.price.toLocaleString('tr-TR')} TL)`);
+}
+
+function addProductToCart(productType) {
+    if (!currentUser) { showToast('Lütfen giriş yapın', 'error'); document.getElementById('loginModal').classList.add('open'); return; }
+    if (productType === 'trufon') {
+        cart.push({ id: 'trufon_' + Date.now(), name: 'TRUFON PRO', price: 150000, type: 'trufon', isTrufon: true, purchaseDate: new Date().toISOString() });
+        saveCart(); updateCartBadge();
+        showToast('TRUFON PRO sepete eklendi (150.000 TL)');
+    }
+}
+
+function addPackageToCart(packageType) {
+    if (!currentUser) { showToast('Lütfen giriş yapın', 'error'); document.getElementById('loginModal').classList.add('open'); return; }
+    const packages = { 'basic': { name: 'Başlangıç Paketi', price: 10000 }, 'pro': { name: 'Profesyonel Paket', price: 40000 }, 'premium': { name: 'Premium Paket', price: 150000 } };
+    const pkg = packages[packageType];
+    if (!pkg) return;
+    cart.push({ id: packageType + '_' + Date.now(), name: pkg.name, price: pkg.price, type: 'package', purchaseDate: new Date().toISOString() });
+    saveCart(); updateCartBadge();
+    showToast(`${pkg.name} sepete eklendi (${pkg.price.toLocaleString('tr-TR')} TL)`);
+}
+
+function saveCart() { localStorage.setItem('truffle_cart', JSON.stringify(cart)); }
+
+function saveData() {
+    localStorage.setItem('truffle_evaluations', JSON.stringify(evaluations));
+    localStorage.setItem('truffle_purchased', JSON.stringify(purchased));
+}
+
+function loadCart() { let c = localStorage.getItem('truffle_cart'); if (c) cart = JSON.parse(c); updateCartBadge(); }
+
+function loadUserData() {
+    let c = localStorage.getItem('truffle_cart'); if (c) cart = JSON.parse(c);
+    let p = localStorage.getItem('truffle_purchased'); if (p) purchased = JSON.parse(p);
+    let e = localStorage.getItem('truffle_evaluations'); if (e) evaluations = JSON.parse(e);
+    updateCartBadge();
+}
+
+function showCart() {
+    if (!currentUser) { showToast('Lütfen giriş yapın', 'error'); document.getElementById('loginModal').classList.add('open'); return; }
+    let listDiv = document.getElementById('cartItemsList');
+    let totalDiv = document.getElementById('cartTotalPrice');
+    if (cart.length === 0) {
+        listDiv.innerHTML = '<p style="text-align:center;color:#6a6a7a;">Sepetiniz boş</p>';
+        totalDiv.innerHTML = '';
+    } else {
+        listDiv.innerHTML = cart.map(item => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.1);">
+                <div><strong>${item.name}</strong>${item.city ? `<br><small style="color:#a1a1aa;">${item.city}/${item.district}</small>` : ''}</div>
+                <div>${item.price.toLocaleString('tr-TR')} TL <button style="background:none;border:none;color:#ff6b6b;cursor:pointer;font-size:16px;" onclick="removeFromCart('${item.id}')">🗑️</button></div>
+            </div>
+        `).join('');
+        let total = cart.reduce((s, i) => s + i.price, 0);
+        totalDiv.innerHTML = `Toplam: <strong style="color:#a78bfa;">${total.toLocaleString('tr-TR')} TL</strong>`;
+    }
+    document.getElementById('cartModal').classList.add('open');
+}
+
+function removeFromCart(id) { cart = cart.filter(i => i.id !== id); saveCart(); updateCartBadge(); showCart(); }
+
+function checkout() {
+    if (cart.length === 0) { showToast('Sepet boş!', 'error'); return; }
+    cart.forEach(item => { if (!purchased.find(p => p.id === item.id)) purchased.push({ ...item, purchaseDate: new Date().toISOString() }); });
+    cart = []; saveCart(); saveData(); updateCartBadge(); closeModal('cartModal');
+    showToast(`✅ Satın alma başarılı! ${purchased.length} ürün`);
+    showDashboard();
+}
+
+// ============ LOGIN ============
+function handleLogin(e) {
+    e.preventDefault();
+    let email = document.getElementById('loginEmail').value;
+    if (email) {
+        currentUser = { email: email, name: email.split('@')[0] };
+        localStorage.setItem('truffle_user', JSON.stringify(currentUser));
+        loadUserData();
+        closeModal('loginModal');
+        document.getElementById('userAvatar').innerHTML = currentUser.name.charAt(0).toUpperCase();
+        showToast(`Hoş geldiniz, ${currentUser.name}!`);
+    }
+    return false;
+}
+
+function logout() {
+    currentUser = null; localStorage.removeItem('truffle_user');
+    cart = []; purchased = []; evaluations = {};
+    document.getElementById('userAvatar').innerHTML = '👤';
+    goHome();
+    showToast('Çıkış yapıldı');
+}
+
+function showLogin() { document.getElementById('loginModal').classList.add('open'); }
+
+// ============ NAVIGATION ============
+function goHome() {
+    document.getElementById('mainContent').style.display = 'block';
+    document.getElementById('dashboardPanel').style.display = 'none';
+}
+
+function showDashboard() {
+    if (!currentUser) { showToast('Lütfen giriş yapın', 'error'); document.getElementById('loginModal').classList.add('open'); return; }
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('dashboardPanel').style.display = 'block';
+    renderDashboard();
+    window.scrollTo(0, 0);
+}
+
+function scrollToSection(id) {
+    goHome();
+    setTimeout(() => {
+        let el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        if (id === 'platform') setTimeout(() => initMap(), 200);
+    }, 100);
+    if (document.getElementById('mobileMenu').classList.contains('open')) toggleMobileMenu();
+}
+
+function toggleMobileMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+    document.getElementById('mobileOverlay').classList.toggle('open');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openInvestorModal() { document.getElementById('investorModal').classList.add('open'); }
+
+// ============ DASHBOARD ============
+function renderDashboard() {
+    const container = document.getElementById('dashboardContent');
+    const noPurchased = document.getElementById('noPurchased');
+    
+    if (!purchased || purchased.length === 0) { 
+        container.innerHTML = ''; 
+        if (noPurchased) noPurchased.style.display = 'block'; 
+        return; 
+    }
+    if (noPurchased) noPurchased.style.display = 'none';
+    
+    container.innerHTML = purchased.map(item => {
+        if (item.isTrufon) {
+            return `<div class="polygon-card">
+                <div class="polygon-header"><span class="polygon-code">🍄 Trufon</span><span class="polygon-status">✅ Satın Alındı</span></div>
+                <h3>Human Kit + Doge K9 Kit</h3>
+                <div class="polygon-detail-row"><span>📦 Ürün:</span><span>${item.name}</span></div>
+                <div class="polygon-detail-row"><span>💰 Fiyat:</span><span style="color:#a78bfa;">${item.price.toLocaleString('tr-TR')} TL</span></div>
+                <div class="polygon-detail-row"><span>📅 Satın Alma:</span><span>${new Date(item.purchaseDate).toLocaleDateString('tr-TR')}</span></div>
+				<a href="detayrapor.html?id=${item.id}&code=${item.code || ''}&city=${item.city || ''}&district=${item.district || ''}&maturity=${item.maturity || ''}&price=${item.price || ''}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.4);color:#ef4444;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700;margin:12px 0;width:100%;justify-content:center;text-align:center;transition:all 0.3s;" onmouseover="this.style.background='rgba(220,38,38,0.25)';this.style.boxShadow='0 0 15px rgba(220,38,38,0.3)';" onmouseout="this.style.background='rgba(220,38,38,0.15)';this.style.boxShadow='none';">
+    🔴 Detay Rapor
+</a>
+                <button class="delete-btn" onclick="deletePurchase('${item.id}')">🗑️ Ürünü Sil</button>
+            </div>`;
+        }
+        
+        const evals = evaluations[item.id] || [];
+        const avgRating = evals.length ? (evals.reduce((s, e) => s + e.rating, 0) / evals.length).toFixed(1) : 0;
+        
+        return `<div class="polygon-card">
+            <div class="polygon-header"><span class="polygon-code">${item.code || item.id}</span><span class="polygon-status">✅ Satın Alındı</span></div>
+            <h3>${item.city || '?'} / ${item.district || '?'}</h3>
+            <div class="polygon-detail-row"><span>📐 Alan:</span><span>${item.area_km2 || 100} km²</span></div>
+            <div class="polygon-detail-row"><span>🧪 pH:</span><span>${item.ph || '?'}</span></div>
+            <div class="polygon-detail-row"><span>🌲 Ağaç Türleri:</span><span>${item.trees || 'Meşe'}</span></div>
+            <div class="polygon-detail-row"><span>⛰️ Rakım:</span><span>${item.elevation || '?'} m</span></div>
+            <div class="polygon-detail-row"><span>💧 Su Kaynağına Mesafe:</span><span>${item.water_dist || '?'} m</span></div>
+            <div class="polygon-detail-row"><span>🎯 Trüf Potansiyeli:</span><span style="color:#a78bfa;">%${item.maturity || 70}</span></div>
+            <div class="polygon-detail-row"><span>💰 Satın Alma Fiyatı:</span><span style="color:#a78bfa;">${(item.price || 0).toLocaleString('tr-TR')} TL</span></div>
+            <div class="polygon-detail-row"><span>📅 Satın Alma Tarihi:</span><span>${new Date(item.purchaseDate).toLocaleDateString('tr-TR')}</span></div>
+			
+<a href="detayrapor.html?id=${item.id}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,70,70,0.15);border:1px solid rgba(255,70,70,0.3);color:#ff6b6b;padding:8px 16px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600;margin:12px 0;width:100%;justify-content:center;text-align:center;">
+    ✅ Detay Rapor
+</a>
+            <div class="polygon-detail-row"><span>⭐ Ortalama Puan:</span><span>${avgRating}/5 (${evals.length} değerlendirme)</span></div>
+            <button class="delete-btn" onclick="deletePurchase('${item.id}')">🗑️ Bu Alanı Sil</button>
+            <div class="evaluation-section">
+                <strong>📝 Bu Alanı Değerlendir</strong>
+                <div class="stars" id="stars-${item.id}">
+                    ${[1,2,3,4,5].map(s => `<span class="star" data-star="${s}" onclick="setRating('${item.id}', ${s})">★</span>`).join('')}
+                </div>
+                <textarea id="comment-${item.id}" placeholder="Saha gözlemleriniz (trüf buldunuz mu? derinlik? miktar?)" rows="2" style="width:100%; margin:8px 0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px; color:white;"></textarea>
+                <button class="btn btn-primary" style="width:100%;" onclick="submitEvaluation('${item.id}')">Değerlendirmeyi Kaydet</button>
+                <div class="evaluation-history">
+                    ${evals.slice(-3).reverse().map(e => `
+                        <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px; margin-bottom:8px;">
+                            <div>${'★'.repeat(e.rating)}${'☆'.repeat(5-e.rating)}</div>
+                            <div style="font-size:10px; color:#6a6a7a;">${new Date(e.date).toLocaleDateString('tr-TR')}</div>
+                            <div style="margin-top:4px;">${e.comment || 'Yorum yok'}</div>
+                        </div>
+                    `).join('')}
+                    ${evals.length === 0 ? '<p style="text-align:center;color:#6a6a7a;">Henüz değerlendirme yok</p>' : ''}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+    
+    // Yıldız durumlarını güncelle
+    setTimeout(() => {
+        Object.keys(evaluations).forEach(polyId => {
+            const evals = evaluations[polyId];
+            if (evals && evals.length > 0) {
+                const lastRating = evals[evals.length - 1].rating;
+                for (let i = 1; i <= 5; i++) {
+                    const star = document.querySelector(`#stars-${polyId} .star[data-star="${i}"]`);
+                    if (star) {
+                        if (i <= lastRating) star.classList.add('active');
+                        else star.classList.remove('active');
+                    }
+                }
+            }
+        });
+    }, 200);
+}
+
+function deletePurchase(id) {
+    if (confirm('Bu ürünü silmek istediğinize emin misiniz?')) {
+        purchased = purchased.filter(p => p.id !== id);
+        saveData();
+        renderDashboard();
+        showToast('Ürün silindi');
+    }
+}
+
+function setRating(hexId, rating) {
+    currentRating[hexId] = rating;
+    for (let i = 1; i <= 5; i++) {
+        const star = document.querySelector(`#stars-${hexId} .star[data-star="${i}"]`);
+        if (star) {
+            if (i <= rating) star.classList.add('active');
+            else star.classList.remove('active');
+        }
+    }
+}
+
+function submitEvaluation(hexId) {
+    const rating = currentRating[hexId];
+    if (!rating) { showToast('Lütfen bir puan seçin!', 'error'); return; }
+    const comment = document.getElementById(`comment-${hexId}`)?.value || '';
+    if (!evaluations[hexId]) evaluations[hexId] = [];
+    evaluations[hexId].push({ rating: rating, comment: comment, date: new Date().toISOString() });
+    saveData();
+    renderDashboard();
+    showToast('✅ Değerlendirmeniz kaydedildi!');
+}
+
+// ============ YATIRIMCI ============
+async function submitInvestorForm(e) {
+    e.preventDefault();
+    let form = e.target;
+    let fd = new FormData(form);
+    try {
+        let res = await fetch(form.action, { method: 'POST', body: fd, headers: { 'Accept': 'application/json' } });
+        if (res.ok) { showToast('✅ Başvurunuz alındı!'); form.reset(); closeModal('investorModal'); }
+        else throw new Error();
+    } catch(err) { showToast('❌ Hata oluştu, info@trufflemaps.com adresine mail atın.', 'error'); }
+    return false;
+}
+
+// ============ TOAST ============
+function showToast(msg, type = 'success') {
+    let toast = document.createElement('div'); 
+    toast.className = 'toast'; 
+    toast.textContent = msg;
+    if (type === 'error') toast.style.borderLeftColor = '#ff6b6b';
+    document.getElementById('toastContainer').appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+    let saved = localStorage.getItem('truffle_user');
+    if (saved) { currentUser = JSON.parse(saved); loadUserData(); document.getElementById('userAvatar').innerHTML = currentUser.name.charAt(0).toUpperCase(); }
+    let observer = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) setTimeout(() => initMap(), 100); }); }, { threshold: 0.1 });
+    let platform = document.getElementById('platform');
+    if (platform) observer.observe(platform);
+});
+</script>
+</body>
+</html>
